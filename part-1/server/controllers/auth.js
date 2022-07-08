@@ -1,3 +1,5 @@
+const bcrypt = require("bcryptjs");
+
 const users = []
 
 module.exports = {
@@ -15,7 +17,23 @@ module.exports = {
     register: (req, res) => {
         console.log('Registering User')
         console.log(req.body)
-        users.push(req.body)
-        res.status(200).send(req.body)
+
+        const { username, email, firstName, lastName, password } = req.body;
+
+        const salt = bcrypt.genSaltSync(5);
+        const passwordHash = bcrypt.hashSync(password, salt);
+
+        let regObj = {
+          username: [username],
+          email: [email],
+          firstName: [firstName],
+          lastName: [lastName],
+          passwordHash
+        }
+
+        users.push(regObj)
+        let registeredToReturn = {...regObj};
+        delete registeredToReturn.passwordHash;
+        res.status(200).send(registeredToReturn);
     }
 }
